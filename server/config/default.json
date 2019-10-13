@@ -1,0 +1,7 @@
+{
+    "port": 3000,
+    "db": "<your mongodb URI>",
+    "jwtsecret": "whitepanda",
+    "jwtexp": "1d",
+    "api_key": "<your 2 factor api key>"
+}

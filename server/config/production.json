@@ -1,0 +1,6 @@
+{
+    "db": "<your mongodb URI>",
+    "jwtsecret": "whitepanda",
+    "jwtexp": "1d",
+    "api_key": "<your 2factor api key>"
+}
