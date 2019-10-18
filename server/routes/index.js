@@ -1,5 +1,6 @@
 const express = require("express");
 const axios = require("axios");
+const passport = require("passport");
 
 const router = express.Router();
 
@@ -53,6 +54,7 @@ router.post("/register", validator(UserRegister), async (req, res) => {
 router.post(
   "/login-phone",
   validator(userLoginPhone),
+
   async (req, res, next) => {
     try {
       // If the user has an account
@@ -89,30 +91,18 @@ router.post(
  */
 
 router.post("/verify-otp", async (req, res) => {
-  try {
-    const { otp, phone } = req.body;
-    if (!otp) return res.json("OTP is required!");
+  passport.authenticate(
+    "local-login-phone",
+    async (err, passportUser, info) => {
+      if (err) next(err);
 
-    // if user exists or either verified
-    const user = await User.findOne({ phone });
-    if (!user) return res.status(403).json("Unable to login.");
+      if (passportUser) {
+        return res.status(200).json(passportUser.generateJwt());
+      }
 
-    // Verify OTP and Login
-    const body = await axios.get(
-      `https://2factor.in/API/V1/${API_KEY}/SMS/VERIFY/${user.session_id}/${otp}`
-    );
-    console.log(body);
-    if (body.data.Status === "Success") {
-      user.session_id = "";
-      await user.save();
-      return res.status(200).json(user.generateJwt());
-    } else return res.status(400).json("Invalid OTP");
-  } catch (err) {
-    console.log(err);
-    return res
-      .status(500)
-      .json("OOPS! Something went wrong. Please try again later.");
-  }
+      return res.status(401).json(info);
+    }
+  )(req, res, next);
 });
 
 /**
@@ -121,23 +111,15 @@ router.post("/verify-otp", async (req, res) => {
  * Route to login user using the email and password
  */
 router.post("/login-email", validator(UserLoginEmail), async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  passport.authenticate("local-login", async (err, passportUser, info) => {
+    if (err) next(err);
 
-    // checks if user exists or verified
-    const user = await User.findOne({ email });
-    if (!user) return res.status(403).json("Invalid username or password");
+    if (passportUser) {
+      return res.status(200).json(passportUser.generateJwt());
+    }
 
-    // checks if passwords match
-    if (!user.validatePassword(password))
-      return res.status(403).json("Invalid username or password");
-    return res.status(200).json(user.generateJwt());
-  } catch (err) {
-    console.log(err);
-    return res
-      .status(500)
-      .json("OOPS! Something went wrong. Please try again later.");
-  }
+    return res.status(401).json(info);
+  })(req, res, next);
 });
 
 module.exports = router;

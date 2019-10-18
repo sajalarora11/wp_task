@@ -4,6 +4,8 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const cors = require("cors");
+const session = require("express-session");
+const passport = require("passport");
 
 const connectDB = require("./config/db");
 
@@ -20,6 +22,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
+
+require("./config/passport")(passport);
+
+// required for passport
+app.use(
+  session({
+    secret: "eminem", // session secret
+    resave: true,
+    saveUninitialized: true
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
