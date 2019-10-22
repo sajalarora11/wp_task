@@ -7,10 +7,10 @@ const auth = require("../middlewares/auth");
 /* GET users listing. */
 router.get("/", auth, async (req, res) => {
   try {
-    const { id } = req.user;
-    const user = await User.findById({ _id: id });
-    const { username } = user;
-    return res.status(200).json({ id, username });
+    console.log(req.session, req.user);
+    const user = await User.findById({ _id: req.user });
+    const { username, _id } = user;
+    return res.status(200).json({ _id, username });
   } catch (err) {
     console.log(err);
     return res.status(500).json("Something went wrong1");

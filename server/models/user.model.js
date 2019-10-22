@@ -36,8 +36,10 @@ userSchema.methods.setPassword = async function(password) {
   this.password = await bcrypt.hash(password, this.salt);
 };
 
-userSchema.methods.validatePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+userSchema.methods.validatePassword = async function(pass) {
+  const isMatch = await bcrypt.compare(pass, this.password);
+  console.log(isMatch);
+  return isMatch;
 };
 
 userSchema.methods.generateJwt = function() {

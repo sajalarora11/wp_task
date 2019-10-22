@@ -54,7 +54,7 @@ const AuthState = props => {
       const config = {
         headers: {
           "Context-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token")
+          withCredentials: true
         }
       };
       const res = await axios.get(serverURL + "/api/user/", config);
@@ -113,6 +113,7 @@ const AuthState = props => {
         { email, password },
         OPTION
       );
+      console.log("LOGIN", res);
       if (res.status === 200)
         dispatch({ type: LOGIN_SUCCESS, payload: res.data });
       loadUser();

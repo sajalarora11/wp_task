@@ -1,7 +1,8 @@
 {
     "port": 3000,
-    "db": "<your mongodb URI>",
-    "jwtsecret": "whitepanda",
-    "jwtexp": "1d",
+    "db": "mongodb+srv://sajalarora007:pillowtalk@cluster0-yeljw.mongodb.net/test?retryWrites=true&w=majority",
+    "SESSION_SECRET": "hollygrail",
+    "SESSION_NAME": "perfectauth",
+    "NODE_ENV": "development",
     "api_key": "<your 2 factor api key>"
 }

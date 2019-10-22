@@ -31,12 +31,12 @@ router.post("/register", validator(UserRegister), async (req, res) => {
     await newUser.setPassword(req.body.password);
 
     await newUser.save();
+    req.login(newUser, err => {
+      if (err) console.log(err);
+    });
 
     const { _id, username, email } = newUser;
-
-    return res
-      .status(201)
-      .json({ user: { _id, username, email }, token: newUser.generateJwt() });
+    return res.status(201).json({ user: { _id, username, email } });
   } catch (err) {
     console.log(err);
     return res
@@ -97,7 +97,7 @@ router.post("/verify-otp", async (req, res) => {
       if (err) next(err);
 
       if (passportUser) {
-        return res.status(200).json(passportUser.generateJwt());
+        return res.status(200).json("Logged in successfully");
       }
 
       return res.status(401).json(info);
@@ -110,16 +110,31 @@ router.post("/verify-otp", async (req, res) => {
  *
  * Route to login user using the email and password
  */
-router.post("/login-email", validator(UserLoginEmail), async (req, res) => {
-  passport.authenticate("local-login", async (err, passportUser, info) => {
-    if (err) next(err);
+router.post(
+  "/login-email",
+  validator(UserLoginEmail),
+  async (req, res, next) => {
+    passport.authenticate("local-login", async (err, passportUser, info) => {
+      if (err) next(err);
 
-    if (passportUser) {
-      return res.status(200).json(passportUser.generateJwt());
-    }
+      if (passportUser) {
+        req.login(passportUser, err => {
+          console.log(err);
+        });
+        console.log("RES", res);
 
-    return res.status(401).json(info);
-  })(req, res, next);
+        return res.status(200).json("Logged in successfully");
+      }
+
+      return res.status(401).json(info);
+    })(req, res, next);
+  }
+);
+
+router.post("/logout", (req, res) => {
+  req.logout();
+  req.session.destroy();
+  return res.status(200).json("Successfuly logged out");
 });
 
 module.exports = router;
